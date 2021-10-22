@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import { Password } from "../services/password";
 
 interface IUser {
   email: string;
@@ -16,6 +17,16 @@ const userSchema = new Schema<IUser>({
   },
 });
 
-const UserModel = model<IUser>("User", userSchema);
+// Before saving password, hash and save hashed password instead 
+userSchema.pre('save', async function(done) {
+  // Check if password is actually different from what is already in DB
+   if (this.isModified('password')) {
+     const hashed = await Password.toHash(this.get('password'));
+     this.set('password', hashed)
+   }
+   done();
+});
 
-export { UserModel };
+const User = model<IUser>("User", userSchema);
+
+export { User };
