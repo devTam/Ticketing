@@ -1,7 +1,8 @@
 import express, { Request, Response } from "express";
 import { body, validationResult } from "express-validator";
+import { BadRequestError } from "../errors/badRequestError";
 import { RequestValidationError } from "../errors/requestValidationError";
-import { DbConnectionError } from "../errors/dbConnectionError";
+import { User } from "../models/user";
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ router.post(
       .isLength({ min: 7 })
       .withMessage("Password must be at least 7 characters"),
   ],
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -22,9 +23,16 @@ router.post(
     }
 
     const { email, password } = req.body;
+    const existingUser = await User.findOne({ email });
 
-    console.log("creating a user");
-    res.send({});
+    if (existingUser) {
+      throw new BadRequestError('Email already in use!');
+    }
+
+    const user = new User({ email, password });
+    await user.save();
+
+    res.status(201).send(user)
   }
 );
 
