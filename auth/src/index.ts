@@ -2,6 +2,7 @@ import express from 'express';
 import 'express-async-errors';
 import { json } from 'body-parser';
 import mongoose from 'mongoose';
+import cookieSession from 'cookie-session';
 
 import { currentUserRouter } from './routes/currentuser';
 import { signinRouter } from './routes/signin';
@@ -11,8 +12,15 @@ import { errorHandler } from './middlewares/errorHandler';
 import { NotFoundError } from './errors/notFoundError';
 
 const app = express();
-const PORT = 8000;
+app.set('trust proxy', true); // app is being proxied using nginx so let express know it's secure.
+const PORT = 8080;
 app.use(json());
+app.use(
+    cookieSession({
+        signed: false,
+        secure: true,
+    })
+)
 
 app.use(currentUserRouter);
 app.use(signinRouter);
