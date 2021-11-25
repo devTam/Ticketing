@@ -13,7 +13,6 @@ import { NotFoundError } from './errors/notFoundError';
 
 const app = express();
 app.set('trust proxy', true); // app is being proxied using nginx so let express know it's secure.
-const PORT = 8080;
 app.use(json());
 app.use(
     cookieSession({
@@ -43,8 +42,8 @@ const start = async () => {
     } catch (error) {
         console.error(error)
     }
-    app.listen(PORT, () => {
-        console.log(`Listening on port ${PORT}`)
+    app.listen(5000, () => {
+        console.log(`Listening on port ${5000}`)
     });
 }; 
 
